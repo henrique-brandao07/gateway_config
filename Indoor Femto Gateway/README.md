@@ -1,4 +1,4 @@
-# Gateway LoRa.
+# Indoor Femto Gateway WLRGFM-100.
 
 ## Comandos para o terminal SSH.
 
