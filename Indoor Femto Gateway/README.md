@@ -96,6 +96,6 @@ fi
 ### Agendamento do Script de teste da conexão.
 ```
 chmod +x check_no_connection_reboot.sh
-(crontab -l ; echo "*/3 * * * * nohup /sbin/check_no_connection_reboot.sh") | crontab -
+(crontab -l ; echo "*/30 * * * * nohup /sbin/check_no_connection_reboot.sh") | crontab -
 reboot
 ```
