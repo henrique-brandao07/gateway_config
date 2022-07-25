@@ -1,94 +1,99 @@
-# Gateway Kerlink Wirnet iFemtoCell 923.
+# Gateway Kerlink Wirnet Station.
+## LEDs management
+Os leds são ativados durante um minuto após pressionar o botão de teste.
+|Função  |Cor    |Modo     | Detalhes
+|--------|-------|---------|--|
+|Power   |Verde  |Contínuo |  |
+|GSM_1   |Verde  |Contínuo |Gerenciado por plataforma  |
+|GSM_2   |Verde  |Contínuo |Gerenciado por plataforma  |
+|WAN     |Verde  |         |É para uso em aplicativos. Normalmente, este LED pode estar LIGADO quando o link WAN está ativo.  |
+|MODEM_1 |Verde  |         |
+|MODEM_2 |Verde  |         |
+
+
+**GSM Status**
+- 00b: erro
+- 01b: sem rede
+- 10b: RSSI < 17
+- 11b: RSSI > 18
 
 ## Acesso
-
-### Acesso Web para atualização do Firmware
-http://klk-wifc-xxxxxx.local/
-Login with admin/pwd4admin
-Obs.: xxxxxx é os últimos 6 dígitos do Board ID
-
 ### Acesso SSH
 
-klk-wifc-xxxxxx.local
-login: root
-pass: pdmk-xxxxxx
-Obs.: xxxxxx é os últimos 6 dígitos do Board ID
+Conecte o PC por cabo Ethernet à fonte de alimentação PoE e configure o IP do PC para 192.168.4.150.
 
-#### Teste de conexão com à internet
+SSH: 192.168.4.155 porta 22
+* **Firmware version 2.x:**
+Username: ```root```
+Password:```root```
+* **Firmware v3.1:**
+Username: ```root```
+Password: ```pdmk-0```seguido pelos últimos 7 caracteres do número de série do gateway em letras minúsculas. 
+Ex: pdmk-080e0000.
+* **Firmware v3.2:**
+Username: root
+Password: ```pdmk-0``` seguido pelos últimos 7 caracteres do número de série do gateway em letras maiúsculas. 
+Ex: pdmk-080E0000.
+
+
+## Gerenciamento de modem 3G/GPRS
+### Conexão automática de rede sem Wanesy (KNONE)
+A conexão GPRS é iniciada automaticamente na inicialização e monitorada pelo agente incorporado do Kerlink (reiniciada se a conexão GPRS/3G cair).
+
+**Configuração de telecomunicações (APN)**
+
+Defina sua APN em:  ```/etc/sysconfig/network```
+```bash
+# Selector operator APN
+GPRSAPN=m2minternet
+# Enter pin code if activated
+GPRSPIN=
+# Update /etc/resolv.conf to get dns facilities
+GPRSDNS=yes
+# PAP authentication
+GPRSUSER=kerlink
+GPRSPASSWORD=password
 ```
+Você pode iniciar o serviço iniciando o script ```/etc/init.d/gprs start.```
+
+**Configuração de auto conexão**
+Ative e configure o recurso em: ```/knet/knetd.xml```
+```bash
+<!-- ############## local device configuration ############## -->
+<LOCAL_DEV role="KNONE"/>
+ 
+<!-- ############## connection parameters ############## -->
+<!-- enable the autoconnect feature (YES/NO) -->
+<CONNECT auto_connection="YES" />
+<!-- frequency of connection monitoring -ping- (in seconds) -->
+<CONNECT link_timeout="30"/>
+<!-- DNS servers will be pinged if commented or deleted. Some operators can block the ping on there DNS servers so your server IP must be used to ping -->
+<!-- CONNECT ip_link="8.8.8.8"/ -->
+ 
+<!-- ############## default area for connection policy ############## -->
+ 
+<AREA id="default">
+<ACCESS_POINT bearer="gprs" />
+</AREA>
+```
+
+O link Ethernet é tentado primeiro e o GPRS em segundo lugar. O link GPRS será definido como a rota de rede padrão somente se não houver acesso externo ethernet. Desconecte o cabo ethernet (dados) para garantir que a conexão GPRS seja válida.
+
+**Aplique a configuração**
+- Reinicie o sistema (comando: ```reboot```).
+- Ou reinicie o agente knet (comando: ```/etc/rc.d/init.d/knet restart```).
+
+### Teste de conexão com à internet
+```bash
 ping -c 5 8.8.8.8
 ```
 
-### Verificação de existência dos arquivos.
+## Verificando cominicação LoRa com o gateway
+Use o seguinte comando no gateway para verificar se os dados estão sendo enviados e recebidos:
+```bash
+tcpdump -AUq port 1700
 ```
-ls /etc/lorad/fevo/AU915-AU.json
-ls /etc/default/lorad
-ls /etc/default/lorafwd
-```
-
-## Configurações LoRa
-
-### Configuração do arquivo lorad
-```
-sed -i 's/CONFIGURATION_FILE=""/CONFIGURATION_FILE="\/etc\/lorad\/fevo\/AU915-AU.json"/' /etc/default/lorad
-sed -i 's/DISABLE_LORAD="yes"/DISABLE_LORAD="no"/' /etc/default/lorad
-```
-
-### Configuração do arquivo lorafwd
-```
-sed -i 's/DISABLE_LORAFWD="yes"/DISABLE_LORAFWD="no"/' /etc/default/lorafwd
-```
-
-### Configuração do arquivo lorafwd.toml
-Definindo o host da Internet onde o gateway deve se conectar e portas de conexão Uplink e Downlink.
-```
-sed -i 's/#node = "localhost"/node = "3.19.12.121"/' /etc/lorafwd.toml
-sed -i 's/#service.uplink = 20000/service.uplink = 1700/' /etc/lorafwd.toml
-sed -i 's/#service.downlink = 20000/service.downlink = 1700/' /etc/lorafwd.toml
-```
-
-### Reiniciando o serviço LoRa 1.2.0 
-```
-/etc/init.d/lorad restart
-/etc/init.d/lorafwd restart
-```
-
-### Verificando registro EUI 
-EUI é usado para cadastro no ChirpStack.
-```
-grep EUI /tmp/board_info.json
-```
-
-### Verificando cominicação LoRa com o gateway
-```
-tail -f /var/log/lora.log
-```
-
-## Script para teste da conexão e reinicio automático quando estiver sem acesso a internet.
-
-Crie e abra o arquivo check_no_connection_reboot.sh
-```
-cd /sbin
-vi check_no_connection_reboot.sh 
-```
-
-Adicione as linhas no arquivo.
-```
-#!/bin/bash
-# Set target host IP or hostname
-TARGET_HOST='google.com.br'
-count=$(ping -c 10 $TARGET_HOST | grep from* | wc -l)
-if [ $count -eq 0 ]; then
-    echo "$(date)" "Target host" $TARGET_HOST "unreachable, Rebooting!" >>/var/log/check_no_connection_reboot.log
-    /sbin/shutdown -r 0
-else
-    echo "$(date) ===-> OK! " >>/var/log/check_no_connection_reboot.log
-fi
-```
-
-### Agendamento do Script de teste da conexão.
-```
-chmod +x check_no_connection_reboot.sh
-(crontab -l ; echo "*/30 * * * * nohup /sbin/check_no_connection_reboot.sh") | crontab -
-reboot
+Os logs do Encaminhador de Pacote Comum estão localizados em:
+```bash
+tail -f /mnt/fsuser-1/lora/var/log/lora.log
 ```
