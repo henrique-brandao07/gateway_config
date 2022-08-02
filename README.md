@@ -3,11 +3,11 @@
 ### Indoor Femto Gateway
 ### Kerlink Wirnet iFemtoCell
 ### Kerlink Wirnet Station
-Kerlink will provide Technical Support (Maintenance Services) with the following agenda:
-* End of HW Repair and Exchange (EoRE) on March the 31st 2030 (LTB+10 years)
-* End of Software Maintenance (=End of SW correction = EoSM) on October the 9th, 2024 (=LBT + 4,5 years) for both SPN and non-SPN SW for Wirnet Station
-* End of Support (=End of SW neutralization = EoS) on October the 9th, 2024 (= LBT + 4,5 years)
-for both SPN and non-SPN SW for Wirnet Station.
+A Kerlink fornecerá Suporte Técnico (Serviços de Manutenção) com a seguinte agenda:
+* Fim do reparo e troca de HW (EoRE) em 31 de março de 2030 (LTB + 10 anos)
+* Fim da Manutenção de Software (=Fim da correção de SW = EoSM) em 9 de outubro de 2024 (=LBT + 4,5 anos) para SW SPN e não SPN para Estação Wirnet
+* Fim do Suporte (=Fim da neutralização de SW = EoS) em 9 de outubro de 2024 (= LBT + 4,5 anos) para SW SPN e não SPN para Estação Wirnet.
+
 Referência: <https://www.kerlink.com/wp-content/uploads/2020/01/Product-End-of-Life-Wirnet-Station.pdf>
 
 
