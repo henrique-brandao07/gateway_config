@@ -4,7 +4,10 @@
 
 ### Acesso Web para atualização do Firmware
 http://klk-wifc-xxxxxx.local/
-Login with admin/pwd4admin
+```
+login: admin
+pass: pwd4admin
+```
 Obs.: xxxxxx é os últimos 6 dígitos do Board ID
 
 #### Atualização
@@ -96,3 +99,7 @@ chmod +x check_no_connection_reboot.sh
 (crontab -l ; echo "*/30 * * * * nohup /sbin/check_no_connection_reboot.sh") | crontab -
 reboot
 ```
+
+# Setup of Wirnet™ iFemtoCell Gateway
+https://wikikerlink.fr/wirnet-productline/doku.php?id=wiki:quickstart:quickstart_ifemto
+
