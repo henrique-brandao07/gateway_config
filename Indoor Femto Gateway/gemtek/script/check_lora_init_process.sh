@@ -4,10 +4,6 @@ do_main() {
         now_lora=`ps w | grep -v grep | grep "lora_pkt_fwd"`
         now_gateway_brige=`ps w | grep -v grep | grep "chirpstack-gateway-bridge"`
 
-        echo $now_lora
-        echo $now_gateway_brige
-
-
         if [ "$now_gateway_brige" = "" ] ; then
                 /etc/init.d/chirpstack-gateway-bridge start
         fi
